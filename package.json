@@ -1,0 +1,76 @@
+{
+  "name": "fileshare",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.5.0",
+    "@testing-library/user-event": "^7.2.1",
+    "async": "^3.2.0",
+    "cross-env": "^7.0.2",
+    "cross-spawn": "^7.0.1",
+    "crypto-js": "^4.0.0",
+    "date-fns": "^2.11.0",
+    "electron-is-dev": "^1.1.0",
+    "localtunnel": "^2.0.0",
+    "lodash": "^4.17.15",
+    "material-ui-dropzone": "^2.4.9",
+    "md5-file": "^4.0.0",
+    "moment": "^2.24.0",
+    "ngrok": "^3.2.7",
+    "otp-input-react": "^0.2.4",
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0",
+    "react-dropzone": "^10.2.1",
+    "react-loading": "^2.0.3",
+    "react-otp-input": "^1.0.1",
+    "react-scripts": "3.4.0",
+    "read-chunk": "^3.2.0",
+    "semantic-ui-react": "^0.88.2",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
+    "uuid": "^7.0.2"
+  },
+  "devDependencies": {
+    "electron-builder": "^22.4.1",
+    "electron": "^8.1.1",
+    "concurrently": "^5.1.0",
+    "wait-on": "^4.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "ed": "concurrently \"cross-env BROWSER=none npm run start\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron-pack": "electron-builder -c.extraMetadata.main=build/electron.js",
+    "preelectron-pack": "npm run build"
+  },
+  "main": "public/electron.js",
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "build": {
+    "appId": "com.sibi.Fileshare",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    }
+  },
+  "homepage": "./"
+}
