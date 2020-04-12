@@ -14,8 +14,11 @@ export default class App extends Component {
     this.setState({ currentRoute: "senloading" });
   };
 
-  sendFile = () => {
+  sendFile = (isChecked) => {
+    if(isChecked) {
+      window.ipcRenderer.send("encryption-on" );
 
+    }
     this.setState({ currentRoute: "sendfile" });
   };
 

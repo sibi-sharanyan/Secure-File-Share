@@ -40,6 +40,18 @@
 }
 
 
+
+.container-contact {
+  height: 85vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+
 .filedesc-cont {
   margin-top: 2rem;
   display: flex;

@@ -17,22 +17,24 @@ const ngrok = require('ngrok');
 const {shell} = require('electron')
 const { getArrayOfRanges } = require("./utils");
 
+//Global variable to determine encryption decision
+let isEncrypt = false;
 
 
+const crypto = require('crypto'),
+    algorithm = 'aes-256-ctr';
 
-// (function() {
-//   var childProcess = require("child_process");
-//   var oldSpawn = childProcess.spawn;
-//   function mySpawn() {
-//       console.log('spawn called');
-//       console.log(arguments);
-//       var result = oldSpawn.apply(this, arguments);
-//       return result;
-//   }
-//   childProcess.spawn = mySpawn;
-// })();
-
-
+function encrypt(buffer , password ){
+  var cipher = crypto.createCipher(algorithm,password)
+  var crypted = Buffer.concat([cipher.update(buffer),cipher.final()]);
+  return crypted;
+}
+ 
+function decrypt(buffer , password){
+  var decipher = crypto.createDecipher(algorithm,password)
+  var dec = Buffer.concat([decipher.update(buffer) , decipher.final()]);
+  return dec;
+}
 
 
 
@@ -55,7 +57,7 @@ function createWindow() {
   );
   mainWindow.on("closed", () => (mainWindow = null));
   mainWindow.removeMenu();
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 }
 
 app.on("ready", createWindow);
@@ -72,14 +74,20 @@ app.on("activate", () => {
   }
 });
 
+ipc.on("encryption-on" , (event) => {
+  isEncrypt = true;
+  console.log("Encryption turned on");
+})
 
+let serverId = null;
 
 ipc.on("genTunnel" , (event) => {
 
 
 
   ngrok.connect(8000).then( ( url   ) => {
-    event.sender.send("tunnelGenerated",url.split("//")[1].split('.')[0]);
+    serverId = url.split("//")[1].split('.')[0];
+    event.sender.send("tunnelGenerated", serverId);
   }).catch((err) => {
     console.log(err);
   })
@@ -116,7 +124,10 @@ console.log("Reciever");
     
 
 let totalLength = 0;
-ioClient.on("file-send", (fileName , chunk , item ,cb) => {
+ioClient.on("file-send", (fileName , chunk , item , isEncrypted  , cb  ) => {
+  if(isEncrypted) {
+    chunk = decrypt(chunk , tunnelID);
+  }
    totalLength += chunk.length;
     fs.appendFile(`./myfiles/${fileName}`, chunk , (err) => {
         if (err){
@@ -124,7 +135,7 @@ ioClient.on("file-send", (fileName , chunk , item ,cb) => {
         }else {
           //Sending update to reciever side renderer process
           event.sender.send("progress-update", item.completePerc , fileName);
-
+            // console.log(fileName , chunk , item ,cb );
             ioClient.emit("file-rec" , item , cb);
         }
 
@@ -170,6 +181,7 @@ server.on("connection", socket => {
   socket.on("file-rec", (item, cb) => {
     // console.log(item.completePerc)
     globalItem = item;
+  
     cb();
   });
 
@@ -195,9 +207,13 @@ server.on("connection", socket => {
             (item, index, cb) => {
               readChunk(data.filePath, item.start, item.length)
                 .then(chunk => {
-                  // console.log(data.length);
+  
+                  if(isEncrypt) {
+                    chunk = encrypt(chunk , serverId);
+                  } 
 
-                  socket.emit("file-send", fileName, chunk, item, cb);
+                 console.log(cb);
+                  socket.emit("file-send", fileName, chunk, item, isEncrypt  , cb );
                   //Sending update to Sender side renderer process
                   event.sender.send("progress-update", item.completePerc , data.filePath , fileName);
                 })
@@ -275,7 +291,11 @@ server.on("connection", socket => {
                 .then(data => {
                   // console.log(data.length);
 
-                  socket.emit("file-send", fileName, data, item, cb);
+                  if(isEncrypt) {
+                    data = encrypt(data , serverId);
+                  } 
+
+                  socket.emit("file-send", fileName, data, item, isEncrypt , cb);
 
                   globalEvent.sender.send("progress-update", item.completePerc , globalData.filePath , fileName);
                 })

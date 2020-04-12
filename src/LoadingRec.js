@@ -51,14 +51,26 @@ export default class LoadingRec extends Component {
   render() {
     if (this.state.percent >= 100) {
       return (
-        <div className="container">
+        <div className="container-contact ">
           <img
           alt="none"
-            style={{ width: "40vw" }}
+            style={{ width: "20vw" }}
             src={require("./undraw_completed_ngx6.svg")}
           />
-          <button className="ui positive button mt-4" onClick = {() => this.showFile()}> Open File Location </button>
+          <button className="ui positive button mt-4 mb-4" onClick = {() => this.showFile()}> Open File Location </button>
+
+          <div className="d-flex justify-content-around w-50 mt-5"> 
+             <i className="fab fa-linkedin fa-3x" style = {{cursor: "pointer"}} onClick = {() => window.shell.openExternal("https://www.linkedin.com/in/sibi-sharanyan")} ></i> 
+
+           <i className="fab fa-github fa-3x" style = {{cursor: "pointer"}}  onClick = {() => window.shell.openExternal("https://github.com/sibi-sharanyan/") }  ></i> 
+
+          <i className="fas fa-envelope fa-3x" style = {{cursor: "pointer"}} onClick = {() => window.shell.openExternal("mailto:webmaster@example.com")}    ></i> 
+
         </div>
+
+
+        </div>
+
       );
     } else {
       return (
@@ -74,7 +86,7 @@ export default class LoadingRec extends Component {
               <strong>  {this.state.timeRemaining !== "Calculating" ?  this.state.timeRemaining + " remaining"  :  "Connecting..." } </strong> {" "}
             </p>
         
-      <p className="lead">{this.state.filePath}</p>
+      <p className="lead">{this.state.fileName}</p>
           <img
           alt="none"
             className="mt-5"
